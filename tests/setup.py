@@ -4,11 +4,14 @@ from LSP.plugin.core.types import ClientConfig, LanguageConfig
 from LSP.plugin.core.sessions import Session
 from LSP.plugin.core.test_session import MockClient
 from LSP.plugin.core.settings import client_configs
+from LSP.plugin.core.protocol import WorkspaceFolder
 from os.path import dirname
 from LSP.plugin.core.registry import windows  # , session_for_view
 from unittesting import DeferrableTestCase
 
-test_file_path = dirname(__file__) + "/testfile.txt"
+project_path = dirname(__file__)
+test_file_path = project_path + "/testfile.txt"
+workspace_folders = [WorkspaceFolder.from_path(project_path)]
 
 SUPPORTED_SCOPE = "text.plain"
 SUPPORTED_SYNTAX = "Packages/Text/Plain text.tmLanguage"
@@ -33,10 +36,11 @@ def remove_config(config):
 
 def inject_session(wm, config, client):
 
-    session = Session(config, "", client)
+    session = Session(config, workspace_folders, client)
     # session.state = ClientStates.READY
     wm.update_configs()
-    wm._sessions[config.name] = session
+    wm._workspace_folders = workspace_folders
+    wm._sessions[config.name] = [session]
     wm._handle_post_initialize(session)
 
 
